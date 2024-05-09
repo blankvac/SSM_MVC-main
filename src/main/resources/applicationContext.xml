@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:ct="http://www.alibaba.com/schema/stat"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.alibaba.com/schema/stat http://www.alibaba.com/schema/stat.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--1.开启注解扫描-->
+    <context:component-scan base-package="com.tjcu.whj"></context:component-scan>
+    <!--2.加载 jdbc.properties小配置文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--3.加载数据源-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" name="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!--4.SqlSessionFactory-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+        <!--1.依赖于数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--2:mapper文件-->
+        <property name="mapperLocations" value="classpath:com/tjcu/mapper/*DaoMapper.xml"></property>
+        <!--3.别名-->
+        <property name="typeAliasesPackage" value="com.tjcu.whj.entity"></property>
+    </bean>
+    <!--5.dao-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!--依赖于DAO接口类型  -->
+        <property name="basePackage" value="com.tjcu.whj.dao"></property>
+    </bean>
+    <!--6.事务管理器-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--7.开启注解式事务控制-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
+</beans>
